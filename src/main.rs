@@ -7,6 +7,8 @@ use blockchain::Blockchain;
 use clap::{Parser, Subcommand};
 use tx::Transaction;
 
+const CHAIN_FILE: &str = "blockchain.json";
+
 // Cli
 #[derive(Parser)]
 #[command(name = "MiniBlockchain")]
@@ -33,16 +35,23 @@ enum Commands {
     Show,
 
     Validate,
+
+    Reset {
+        #[arg(short, long)]
+        difficulty: usize,
+    },
 }
 
 fn main() {
     let cli = Cli::parse();
-    let mut blockchain = Blockchain::new(4);
+    // let mut blockchain = Blockchain::new(4);
+    let mut blockchain = Blockchain::load_from_file(CHAIN_FILE, 4);
 
     match cli.command {
         Commands::Add { from, to, amount } => {
             let tx = Transaction::new(from, to, amount);
             blockchain.add_block(vec![tx]);
+            blockchain.save_to_file(CHAIN_FILE);
         }
         Commands::Show => {
             println!("- - - - - - - Blockchain - - - - - - -");
@@ -50,6 +59,10 @@ fn main() {
         }
         Commands::Validate => {
             println!("Is blockchain valid ? \n {}", blockchain.is_valid());
+        }
+        Commands::Reset { difficulty } => {
+            blockchain = Blockchain::new(difficulty);
+            blockchain.save_to_file(CHAIN_FILE);
         }
     }
 }

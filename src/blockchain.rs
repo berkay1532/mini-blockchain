@@ -1,6 +1,8 @@
 // Zinciri (Blockchain) ve zincire işlem/blok ekleme mantığı.
 use crate::block::{Block, calculate_hash};
 use crate::tx::Transaction;
+use std::fs;
+use std::path::Path;
 
 pub struct Blockchain {
     pub chain: Vec<Block>,
@@ -69,6 +71,21 @@ impl Blockchain {
     pub fn print_chain(&self) {
         for block in &self.chain {
             println!("{:#?}", block);
+        }
+    }
+
+    pub fn save_to_file(&self, filename: &str) {
+        let json = serde_json::to_string_pretty(&self.chain).unwrap();
+        fs::write(filename, json).expect("Dosya yazma başarısız oldu!!");
+    }
+
+    pub fn load_from_file(filename: &str, difficulty: usize) -> Self {
+        if Path::new(filename).exists() {
+            let content = fs::read_to_string(filename).expect("Dosya okuma başarısız");
+            let chain: Vec<Block> = serde_json::from_str(&content).expect("Json çözülemedi");
+            Blockchain { chain, difficulty }
+        } else {
+            Blockchain::new(difficulty)
         }
     }
 }
