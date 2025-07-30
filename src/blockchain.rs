@@ -1,5 +1,6 @@
 // Zinciri (Blockchain) ve zincire işlem/blok ekleme mantığı.
 use crate::block::{Block, calculate_hash};
+use crate::tx::Transaction;
 
 pub struct Blockchain {
     pub chain: Vec<Block>,
@@ -16,7 +17,7 @@ impl Blockchain {
         let genesis_block = Block::new(
             0,
             String::from("0"),
-            String::from("Genesis Block"),
+            Vec::<Transaction>::new(), // ya da  vec![] veya Vec::new()
             difficulty,
         );
 
@@ -26,12 +27,12 @@ impl Blockchain {
     }
 
     // Zincire yeni blok ekler
-    pub fn add_block(&mut self, data: String) {
+    pub fn add_block(&mut self, transactions: Vec<Transaction>) {
         let latest_block = self.chain.last().expect("Zincirde hiç blok yok");
         let new_block = Block::new(
             latest_block.index + 1,
             latest_block.hash.clone(),
-            data,
+            transactions,
             self.difficulty,
         );
 
@@ -42,13 +43,14 @@ impl Blockchain {
         for i in 1..self.chain.len() {
             let current = &self.chain[i];
             let previous = &self.chain[i - 1];
+            let serialized_transactions = serde_json::to_string(&current.transactions).unwrap();
 
             let expected_hash = calculate_hash(&format!(
                 "{}{}{}{}{}",
                 current.index,
                 current.timestamp,
                 current.previous_hash,
-                current.data,
+                serialized_transactions,
                 current.nonce
             ));
 
