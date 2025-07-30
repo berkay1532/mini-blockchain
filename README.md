@@ -26,9 +26,11 @@ mini_blockchain/
 
 ## 🔧 Kurulum
 
+```bash
 git clone https://github.com/kullaniciadi/mini_blockchain.git
 cd mini_blockchain
 cargo build
+```
 
 # 🚀 Kullanım Senaryoları
 
