@@ -1,5 +1,6 @@
 mod block;
 mod blockchain;
+mod pow;
 mod tx;
 
 use blockchain::Blockchain;
