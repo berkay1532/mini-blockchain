@@ -1,0 +1,1 @@
+// Hash üretiminde kullanılan Proof of Work algoritması.
