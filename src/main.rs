@@ -1,11 +1,22 @@
 mod block;
 mod blockchain;
 mod pow;
+mod server;
 mod tx;
 
 use blockchain::Blockchain;
 use clap::{Parser, Subcommand};
+use std::sync::{Arc, Mutex};
 use tx::Transaction;
+
+#[tokio::main]
+
+async fn main() {
+    let blockchain = Blockchain::load_from_file("blockchain.json", 4);
+    let blockchain = Arc::new(Mutex::new(blockchain));
+
+    server::start_server(blockchain).await;
+}
 
 const CHAIN_FILE: &str = "blockchain.json";
 
@@ -42,30 +53,33 @@ enum Commands {
     },
 }
 
-fn main() {
-    let cli = Cli::parse();
-    // let mut blockchain = Blockchain::new(4);
-    let mut blockchain = Blockchain::load_from_file(CHAIN_FILE, 4);
+// to run from cli
+// fn main() {
+//     let cli = Cli::parse();
+//     // let mut blockchain = Blockchain::new(4);
+//     let mut blockchain = Blockchain::load_from_file(CHAIN_FILE, 4);
 
-    match cli.command {
-        Commands::Add { from, to, amount } => {
-            let tx = Transaction::new(from, to, amount);
-            blockchain.add_block(vec![tx]);
-            blockchain.save_to_file(CHAIN_FILE);
-        }
-        Commands::Show => {
-            println!("- - - - - - - Blockchain - - - - - - -");
-            blockchain.print_chain();
-        }
-        Commands::Validate => {
-            println!("Is blockchain valid ? \n {}", blockchain.is_valid());
-        }
-        Commands::Reset { difficulty } => {
-            blockchain = Blockchain::new(difficulty);
-            blockchain.save_to_file(CHAIN_FILE);
-        }
-    }
-}
+//     match cli.command {
+//         Commands::Add { from, to, amount } => {
+//             let tx = Transaction::new(from, to, amount);
+//             blockchain.add_block(vec![tx]);
+//             blockchain.save_to_file(CHAIN_FILE);
+//         }
+//         Commands::Show => {
+//             println!("- - - - - - - Blockchain - - - - - - -");
+//             blockchain.print_chain();
+//         }
+//         Commands::Validate => {
+//             println!("Is blockchain valid ? \n {}", blockchain.is_valid());
+//         }
+//         Commands::Reset { difficulty } => {
+//             blockchain = Blockchain::new(difficulty);
+//             blockchain.save_to_file(CHAIN_FILE);
+//         }
+//     }
+// }
+
+// to check with prints
 
 // fn main() {
 //     println!("CLI komutlarını parse eder, zinciri oluşturur ve çalıştırır.");
