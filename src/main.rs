@@ -4,33 +4,81 @@ mod pow;
 mod tx;
 
 use blockchain::Blockchain;
+use clap::{Parser, Subcommand};
 use tx::Transaction;
 
-fn main() {
-    println!("CLI komutlarını parse eder, zinciri oluşturur ve çalıştırır.");
+// Cli
+#[derive(Parser)]
+#[command(name = "MiniBlockchain")]
+#[command(about = "Rust ile yazılmış basit bir blockchain arayüzü", long_about = None)]
 
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Add {
+        #[arg(short, long)]
+        from: String,
+
+        #[arg(short, long)]
+        to: String,
+
+        #[arg(short, long)]
+        amount: f64,
+    },
+
+    Show,
+
+    Validate,
+}
+
+fn main() {
+    let cli = Cli::parse();
     let mut blockchain = Blockchain::new(4);
 
-    let tx1 = Transaction::new(String::from("Alice"), String::from("Bob"), 3.12);
-    let tx2 = Transaction::new(String::from("Dave"), String::from("Mary"), 21.44);
-    let tx_vec = vec![tx1, tx2];
-
-    blockchain.add_block(tx_vec);
-
-    let tx1 = Transaction::new(String::from("Bob"), String::from("Dave"), 1.95);
-    let tx2 = Transaction::new(String::from("Mary"), String::from("Alice"), 21.44);
-    let tx_vec = vec![tx1, tx2];
-
-    blockchain.add_block(tx_vec);
-
-    let tx1 = Transaction::new(String::from("Aby"), String::from("Beth"), 6.77);
-    let tx2 = Transaction::new(String::from("Peter"), String::from("Jay"), 84.2);
-    let tx_vec = vec![tx1, tx2];
-    blockchain.add_block(tx_vec);
-
-    println!("- - - - - - - Blockhain - - - - - - - - -");
-
-    blockchain.print_chain();
-
-    print!("\n Blockchain geçerli mi?  {}\n", blockchain.is_valid());
+    match cli.command {
+        Commands::Add { from, to, amount } => {
+            let tx = Transaction::new(from, to, amount);
+            blockchain.add_block(vec![tx]);
+        }
+        Commands::Show => {
+            println!("- - - - - - - Blockchain - - - - - - -");
+            blockchain.print_chain();
+        }
+        Commands::Validate => {
+            println!("Is blockchain valid ? \n {}", blockchain.is_valid());
+        }
+    }
 }
+
+// fn main() {
+//     println!("CLI komutlarını parse eder, zinciri oluşturur ve çalıştırır.");
+
+//     let mut blockchain = Blockchain::new(4);
+
+//     let tx1 = Transaction::new(String::from("Alice"), String::from("Bob"), 3.12);
+//     let tx2 = Transaction::new(String::from("Dave"), String::from("Mary"), 21.44);
+//     let tx_vec = vec![tx1, tx2];
+
+//     blockchain.add_block(tx_vec);
+
+//     let tx1 = Transaction::new(String::from("Bob"), String::from("Dave"), 1.95);
+//     let tx2 = Transaction::new(String::from("Mary"), String::from("Alice"), 21.44);
+//     let tx_vec = vec![tx1, tx2];
+
+//     blockchain.add_block(tx_vec);
+
+//     let tx1 = Transaction::new(String::from("Aby"), String::from("Beth"), 6.77);
+//     let tx2 = Transaction::new(String::from("Peter"), String::from("Jay"), 84.2);
+//     let tx_vec = vec![tx1, tx2];
+//     blockchain.add_block(tx_vec);
+
+//     println!("- - - - - - - Blockhain - - - - - - - - -");
+
+//     blockchain.print_chain();
+
+//     print!("\n Blockchain geçerli mi?  {}\n", blockchain.is_valid());
+// }
